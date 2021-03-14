@@ -6,7 +6,7 @@
 /*   By: echung <echung@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/13 19:59:36 by echung            #+#    #+#             */
-/*   Updated: 2021/03/14 01:52:28 by echung           ###   ########.fr       */
+/*   Updated: 2021/03/15 02:22:04 by echung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,8 @@
 
 # include <stdarg.h>
 # include <stdio.h>
-# include <strings.h>
+//# include <strings.h>
 # include <unistd.h>
-//# include <stdlib.h>
 
 typedef struct		s_flag
 {
@@ -36,10 +35,10 @@ typedef struct		s_content
 	unsigned int		value;
 	int				front_margin;
 	int				back_margin;
+	int				intlen;
 }					t_content;
 
 int					ft_atoi(const char *str);
-void				ft_bzero(void *s, size_t n);
 void				*ft_memcpy(void *dst, const void *src, size_t n);
 void				*ft_memset(void *b, int c, size_t len);
 
@@ -48,13 +47,12 @@ char				*ft_strchr(const char *s, int c);
 
 void				ft_putchar_fd(char c, int fd);
 void				ft_putnbr_fd(int n, int fd);
-
 void				ft_putnbr_fd_u(unsigned int n, int fd);
+void				ft_putnbr_fd_p(unsigned int n, int fd);
 void				ft_putnbr_fd_sx(unsigned int n, int fd);
 void				ft_putnbr_fd_lx(unsigned int n, int fd);
-void				ft_putnbr_fd_p(unsigned int n, int fd);
 
-int					intlen(int num);
+int					intlen(unsigned int num, int base);
 void				my_write(int fildes, const void *buf, size_t nbyte);
 void				print_result(t_content content, char type);
 int					max(int a, int b);

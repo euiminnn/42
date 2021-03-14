@@ -6,7 +6,7 @@
 /*   By: echung <echung@student.42seoul.kr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/05 19:17:53 by echung            #+#    #+#             */
-/*   Updated: 2021/03/14 02:04:20 by echung           ###   ########.fr       */
+/*   Updated: 2021/03/15 02:21:51 by echung           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,12 @@
 
 int retlen;
 
-int	intlen(int num)
+int	intlen(unsigned int num, int base)
 {
 	int len;
-	len = 0;
-	while (num)
-	{
+	len = 1;
+	while ((num /= base) > 0)
 		len++;
-		num = num / 10;
-	}
 	return (len);
 }
 
@@ -75,20 +72,20 @@ int max(int a, int b)
 void ycha(t_flag flag, t_content content, unsigned int digit, char c)
 {
 	if (flag.dot) //zero 계산
-		content.zero = max(flag.precision - intlen(digit), 0);
+		content.zero = max(flag.precision - content.intlen, 0);
 	else if (flag.zero && !(flag.minus))
-		content.zero = max(flag.width - intlen(digit) - content.sign, 0);
+		content.zero = max(flag.width - content.intlen - content.sign, 0);
 	if (flag.minus) //margin 계산
-		content.back_margin = max(flag.width - content.zero - intlen(digit) - content.sign, 0);
+		content.back_margin = max(flag.width - content.zero - content.intlen - content.sign, 0);
 	else
-		content.front_margin = max(flag.width - content.zero - intlen(digit) - content.sign, 0);
+		content.front_margin = max(flag.width - content.zero - content.intlen - content.sign, 0);
 	content.value = (unsigned int)digit;
 	print_result(content, c);
 }
 void parse_specifier(char c, va_list ap, t_flag flag)
 {
 	t_content	content;
-	ft_bzero(&content, sizeof(content));
+	ft_memset(&content, 0, sizeof(content));
 
 	if (c == '%')
 	{
@@ -128,12 +125,27 @@ void parse_specifier(char c, va_list ap, t_flag flag)
 			content.sign = 1;
 			digit *= -1;
 		}
+		if (flag.dot == 1 && flag.precision == 0 && digit == 0)
+		{
+			c = 'e';
+			flag.width++;
+		}
+		content.intlen = intlen(digit, 10);
 		ycha(flag, content, digit, c);
 	}
 	else if (c == 'u' || c == 'x' || c == 'X')
 	{
 		unsigned int digit;
 		digit = va_arg(ap, unsigned int);
+		if (flag.dot == 1 && flag.precision == 0 && digit == 0)
+		{
+			c = 'e';
+			flag.width++;
+		}
+		if (c == 'u')
+			content.intlen = intlen(digit, 10);
+		else
+			content.intlen = intlen(digit, 16);
 		ycha(flag, content, digit, c);
 	}
 	else
@@ -145,7 +157,7 @@ void parse(const char **format, va_list ap)
 	t_flag	flag;
 	char charset[10];
 
-	ft_bzero(&flag, sizeof(flag));
+	ft_memset(&flag, 0, sizeof(flag));
 	ft_memcpy(charset, "%cspdiuxX", 10);
 	(*format)++; // %뒤부터 읽어야 함
 	while (!ft_strchr(charset, **format))
@@ -164,6 +176,25 @@ void parse(const char **format, va_list ap)
 			(*format)++;
 			continue ;
 		}
+		else if ('1' <= **format && **format <= '9')
+		{
+			flag.width = ft_atoi(*format);
+			*format = *format + intlen(flag.width, 10);
+			continue ;
+		}
+		else if (**format == '*')
+		{
+			int ast_value_w;
+			ast_value_w = va_arg(ap, int);
+			if (ast_value_w < 0)
+			{
+				ast_value_w = ast_value_w * -1;
+				flag.minus = 1;
+			}
+			flag.width = ast_value_w;
+			(*format)++;
+			continue ;
+		}
 		else if (**format == '.')
 		{
 			flag.dot = 1;
@@ -171,15 +202,20 @@ void parse(const char **format, va_list ap)
 			if ('1' <= **format && **format <= '9')
 			{
 				flag.precision = ft_atoi(*format);
-				*format = *format + intlen(flag.precision);
+				*format = *format + intlen(flag.precision, 10);
 				continue ;
 			}
-		}
-		else if ('1' <= **format && **format <= '9')
-		{
-			flag.width = ft_atoi(*format);
-			*format = *format + intlen(flag.width);
-			continue ;
+			else if (**format == '*')
+			{
+				int ast_value_p;
+				ast_value_p = va_arg(ap, int);
+				if (ast_value_p < 0)
+					flag.dot = 0;
+				flag.precision = ast_value_p;
+				(*format)++;
+				continue ;
+			}
+
 		}
 		else
 			(*format)++;
@@ -208,7 +244,7 @@ int	ft_printf(const char *format, ...)
 	va_end(ap);
 	return (retlen);
 }
-/*
+
 int main(void)
 {
 	char c;
@@ -231,6 +267,7 @@ int main(void)
 	x = 0xfF1;
 	X = 0xfF1;
 
+/*
 	ret = printf("org percent: %%\n");
 	printf("{ret: %d}\n", ret);
 	myret = ft_printf("_my percent: %%\n");
@@ -254,25 +291,27 @@ int main(void)
 	myret = ft_printf("_my p: %p\n", p);
 	printf("{myret: %d}\n", myret);
 	printf("\n");
+*/	
 
-	ret = printf("org 7.5d: %7.5d\n", 123);
+	ret = printf("org 5.0d: %5.0d\n", 0);
 	printf("{ret: %d}\n", ret);
-	myret = ft_printf("_my 7.5d: %7.5d\n", 123);
+	myret = ft_printf("_my 5.0d: %5.0d\n", 0);
 	printf("{myret: %d}\n", myret);
 	printf("\n");
 
-	ret = printf("org 05d: %05d\n", -123);
+	ret = printf("org .*d: %.*3d\n", 2, 1);
 	printf("{ret: %d}\n", ret);
-	myret = ft_printf("_my 05d: %05d\n", -123);
+	myret = ft_printf("_my .*d: %.*3d\n", 2, 1);
 	printf("{myret: %d}\n", myret);
 	printf("\n");
 
-	ret = printf("org -05.3d: %-05.3d\n", -123);
+	ret = printf("org *.*d: %*.*d\n", 7, 5, 12345);
 	printf("{ret: %d}\n", ret);
-	myret = ft_printf("_my -05.3d: %-05.3d\n", -123);
+	myret = ft_printf("_my *.*d: %*.*d\n", 7, 5, 12345);
 	printf("{myret: %d}\n", myret);
 	printf("\n");
 
+/*
 	ret = printf("org i: %i\n", i);
 	printf("{ret: %d}\n", ret);
 	myret = ft_printf("_my i: %i\n", i);
@@ -296,8 +335,7 @@ int main(void)
 	myret = ft_printf("_my X: %X\n", X);
 	printf("{myret: %d}\n", myret);
 	printf("\n");
+*/
 
-	
 	return (0);
 }
-*/

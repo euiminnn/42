@@ -5,6 +5,9 @@
 #include "../includes/printf_lover_test_func.h"
 #include "../includes/libft.h"
 #include "../includes/ft_printf.h"
+#include "../includes/printf_lover_test_func.h"
+#include "../includes/libft.h"
+#include "../includes/ft_printf.h"
 #include <stdio.h>
 #include <assert.h>
 #include "../includes/printf_lover_test_func.h"

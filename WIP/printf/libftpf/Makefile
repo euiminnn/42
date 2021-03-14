@@ -6,11 +6,11 @@
 #    By: echung <echung@student.42seoul.kr>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/01/15 22:13:22 by echung            #+#    #+#              #
-#    Updated: 2021/03/14 02:39:38 by echung           ###   ########.fr        #
+#    Updated: 2021/03/15 00:27:37 by echung           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME	= a.out
+NAME	= libftprintf.a
 CFLAGS	= -Wall -Wextra -Werror -I. -c
 SRCS	= ft_atoi.c \
 		  ft_strlen.c \
@@ -24,22 +24,21 @@ SRCS	= ft_atoi.c \
 		  ft_putnbr_fd_p.c \
 		  ft_putnbr_fd_sx.c \
 		  ft_putnbr_fd_u.c \
-		  ft_printf.c \
-		  main.c
+		  ft_printf.c
 
 OBJS	= $(SRCS:%.c=%.o)
 
 all: $(NAME)
 
-#$(NAME): $(OBJS)
-#	gcc $(CFLAGS) $(SRCS)
-#	ar rcs $(NAME) $(OBJS)
-
 $(NAME): $(OBJS)
-	gcc -o $@ $^
+	gcc $(CFLAGS) $(SRCS)
+	ar rcs $(NAME) $(OBJS)
 
-$(OBJS) : $(SRCS)
-	gcc -c $< -o $@
+#$(NAME): $(OBJS)
+#	gcc -o $@ $^
+
+#$(OBJS) : $(SRCS)
+#	gcc -c $< -o $@
 clean:
 	rm -f $(OBJS)
 
