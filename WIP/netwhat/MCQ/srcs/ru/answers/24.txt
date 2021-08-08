@@ -1,4 +1,0 @@
-Network time protocol
-Default routing protocol
-Domain name system
-OSI model system

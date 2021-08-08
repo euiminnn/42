@@ -1,4 +1,0 @@
-A AND B
-FIRST
-C
-B

@@ -1,4 +1,0 @@
-Application - Presentation - Session - Transport - Network - Data Link - Physical
-Application - Mediation - Session - Transport - Network - Data Link - Physical
-Presentation - Session - Transport - Network - Data Link - Application - Real
-Relation - Transport - Session - Data Link - Mediation - Presentation - Application
